@@ -106,6 +106,7 @@
 
   // ── Hide Shorts shelves ──
   function processShortsShelves() {
+    if (!filterEngine.settings.enabled) return;
     const enabled = filterEngine.settings.blockPresets?.brain_rot;
 
     document.querySelectorAll('ytd-rich-section-renderer').forEach(section => {

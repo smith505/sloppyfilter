@@ -56,6 +56,11 @@
 
     const data = extractTweetData(element);
 
+    if (!filterEngine.settings.enabled) {
+      if (element.dataset.ffHidden) showEl(element);
+      return;
+    }
+
     if (data.isAd) {
       hideEl(element, 'ad');
       return;
