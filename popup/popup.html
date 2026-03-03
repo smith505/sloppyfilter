@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FocusFeed</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo">
+      <span class="logo-icon">◎</span>
+      <span class="logo-text">FocusFeed</span>
+    </div>
+    <label class="toggle-switch" title="Enable/Disable FocusFeed">
+      <input type="checkbox" id="masterToggle" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="section">
+    <div class="section-label">I want to see content about</div>
+    <div class="topic-input-row">
+      <input
+        type="text"
+        id="topicInput"
+        placeholder="e.g. AI, fitness, coding..."
+        maxlength="40"
+      />
+      <button id="addTopic">Add</button>
+    </div>
+    <div id="topicTags" class="tag-list"></div>
+    <div class="mode-row">
+      <label class="mode-label" title="Strict: hide everything NOT matching your topics. Off: only hide blocked content.">
+        <input type="checkbox" id="strictMode" />
+        <span>Strict mode — hide off-topic content</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Always hide</div>
+    <div class="preset-list" id="presetList"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Also hide anything containing</div>
+    <div class="topic-input-row">
+      <input
+        type="text"
+        id="blockInput"
+        placeholder="e.g. Elon Musk, NFT..."
+        maxlength="40"
+      />
+      <button id="addBlock">Add</button>
+    </div>
+    <div id="blockTags" class="tag-list"></div>
+  </div>
+
+  <div class="footer">
+    Works on <span class="site-badge">YouTube</span> <span class="site-badge">Twitter / X</span>
+  </div>
+
+  <script src="../utils/storage.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
