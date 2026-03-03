@@ -4,8 +4,7 @@
   "version": "0.1.0",
   "description": "Block AI slop, Shorts, and clickbait from your YouTube and Twitter/X feeds. Keep the content you actually care about.",
   "permissions": [
-    "storage",
-    "activeTab"
+    "storage"
   ],
   "host_permissions": [
     "https://www.youtube.com/*",

@@ -12,14 +12,14 @@ const PRESET_ORDER = [
 ];
 
 const PRESET_LABELS = {
-  ai_slop:         { label: 'AI Slop',           desc: 'Faceless channels, AI voice-overs, content farms' },
-  brain_rot:       { label: 'Brain Rot / Shorts', desc: 'YouTube Shorts, mindless viral content' },
-  clickbait:       { label: 'Clickbait',          desc: 'Misleading titles and thumbnails' },
-  rage_bait:       { label: 'Rage Bait',          desc: 'Manufactured outrage designed to make you angry' },
-  politics:        { label: 'Politics & News',    desc: 'Political commentary and partisan content' },
-  sports:          { label: 'Sports',             desc: 'Highlights, scores, sports commentary' },
-  celebrity_drama: { label: 'Celebrity Drama',    desc: 'Gossip, feuds, and entertainment news' },
-  spam_channels:   { label: 'Content Farms',      desc: 'Mass-production low-effort channels' },
+  ai_slop:         { label: 'AI Slop',       desc: 'Faceless channels, AI voice-overs, content farms' },
+  brain_rot:       { label: 'Shorts',         desc: 'YouTube Shorts and mindless viral content' },
+  clickbait:       { label: 'Clickbait',      desc: 'Misleading titles designed to get clicks' },
+  rage_bait:       { label: 'Rage Bait',      desc: 'Manufactured outrage designed to make you angry' },
+  politics:        { label: 'Politics',       desc: 'Political commentary and partisan content' },
+  sports:          { label: 'Sports',         desc: 'Highlights, scores, sports commentary' },
+  celebrity_drama: { label: 'Celebrity',      desc: 'Gossip, feuds, and entertainment news' },
+  spam_channels:   { label: 'Content Farms',  desc: 'Mass-production low-effort channels' },
 };
 
 let currentSettings = null;
@@ -38,7 +38,7 @@ function renderAll() {
   renderTags('topicTags', currentSettings.topics, 'topic');
   renderTags('channelTags', currentSettings.allowedChannels || [], 'channel');
   renderTags('blockTags', currentSettings.customBlocks, 'block');
-  renderPresets();
+  renderChips();
 }
 
 function renderTags(containerId, items, type) {
@@ -52,25 +52,18 @@ function renderTags(containerId, items, type) {
   });
 }
 
-function renderPresets() {
-  const container = document.getElementById('presetList');
+function renderChips() {
+  const container = document.getElementById('presetChips');
   container.innerHTML = '';
   PRESET_ORDER.forEach(key => {
     const meta = PRESET_LABELS[key];
     const enabled = currentSettings.blockPresets[key] || false;
-    const item = document.createElement('div');
-    item.className = 'preset-item';
-    item.innerHTML = `
-      <div class="preset-info">
-        <div class="preset-name">${meta.label}</div>
-        <div class="preset-desc">${meta.desc}</div>
-      </div>
-      <label class="toggle-switch">
-        <input type="checkbox" data-preset="${key}" ${enabled ? 'checked' : ''} />
-        <span class="slider"></span>
-      </label>
-    `;
-    container.appendChild(item);
+    const chip = document.createElement('button');
+    chip.className = `chip${enabled ? ' active' : ''}`;
+    chip.dataset.preset = key;
+    chip.title = meta.desc;
+    chip.textContent = meta.label;
+    container.appendChild(chip);
   });
 }
 
@@ -87,22 +80,35 @@ function attachListeners() {
     await save();
   });
 
+  // Preset chips — toggle on click
+  document.getElementById('presetChips').addEventListener('click', async (e) => {
+    const chip = e.target.closest('.chip[data-preset]');
+    if (!chip) return;
+    const key = chip.dataset.preset;
+    currentSettings.blockPresets[key] = !currentSettings.blockPresets[key];
+    chip.classList.toggle('active', currentSettings.blockPresets[key]);
+    await save();
+  });
+
+  // Topic input
   document.getElementById('addTopic').addEventListener('click', addTopic);
   document.getElementById('topicInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') addTopic();
   });
 
+  // Channel input
   document.getElementById('addChannel').addEventListener('click', addChannel);
   document.getElementById('channelInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') addChannel();
   });
 
+  // Custom block input
   document.getElementById('addBlock').addEventListener('click', addBlock);
   document.getElementById('blockInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') addBlock();
   });
 
-  // Remove tags — delegated to document
+  // Remove tags — delegated
   document.addEventListener('click', async (e) => {
     if (!e.target.classList.contains('tag-remove')) return;
     const index = parseInt(e.target.dataset.index);
@@ -118,12 +124,6 @@ function attachListeners() {
       currentSettings.customBlocks.splice(index, 1);
       renderTags('blockTags', currentSettings.customBlocks, 'block');
     }
-    await save();
-  });
-
-  document.getElementById('presetList').addEventListener('change', async (e) => {
-    if (!e.target.dataset.preset) return;
-    currentSettings.blockPresets[e.target.dataset.preset] = e.target.checked;
     await save();
   });
 }

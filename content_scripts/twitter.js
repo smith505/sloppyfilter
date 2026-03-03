@@ -1,4 +1,4 @@
-// SloppyFilter - Twitter/X Content Script (v2)
+// SloppyFilter - Twitter/X Content Script (v3)
 
 (async function () {
   'use strict';
@@ -24,10 +24,16 @@
     };
   }
 
-  // ── Badge counter ──
+  // ── Throttled badge counter (max one message per 200ms) ──
   let filteredCount = 0;
+  let badgePending = false;
   function sendBadgeUpdate() {
-    chrome.runtime.sendMessage({ type: 'badgeUpdate', count: filteredCount }).catch(() => {});
+    if (badgePending) return;
+    badgePending = true;
+    setTimeout(() => {
+      chrome.runtime.sendMessage({ type: 'badgeUpdate', count: filteredCount }).catch(() => {});
+      badgePending = false;
+    }, 200);
   }
 
   // ── Hide/show helpers ──
@@ -72,14 +78,30 @@
     document.querySelectorAll(TWEET_SELECTOR).forEach(processElement);
   }
 
-  // ── MutationObserver for infinite scroll ──
+  // ── MutationObserver with rAF batching — catches every scroll-loaded tweet ──
+  let rafPending = false;
+  const pendingNodes = new Set();
+
   const observer = new MutationObserver((mutations) => {
     for (const m of mutations) {
       for (const node of m.addedNodes) {
         if (node.nodeType !== 1) continue;
-        if (node.matches?.(TWEET_SELECTOR)) { processElement(node); continue; }
-        node.querySelectorAll?.(TWEET_SELECTOR).forEach(processElement);
+        pendingNodes.add(node);
       }
+    }
+    if (!rafPending) {
+      rafPending = true;
+      requestAnimationFrame(() => {
+        rafPending = false;
+        for (const node of pendingNodes) {
+          if (node.matches?.(TWEET_SELECTOR)) {
+            processElement(node);
+          } else {
+            node.querySelectorAll?.(TWEET_SELECTOR).forEach(processElement);
+          }
+        }
+        pendingNodes.clear();
+      });
     }
   });
 
@@ -88,6 +110,7 @@
       document.querySelector('main') ||
       document.querySelector('[data-testid="primaryColumn"]') ||
       document.body;
+    observer.disconnect();
     observer.observe(target, { childList: true, subtree: true });
   }
 
@@ -96,13 +119,15 @@
   new MutationObserver(() => {
     if (location.href !== lastUrl) {
       lastUrl = location.href;
-      setTimeout(processAll, 800);
+      setTimeout(() => { startObserving(); processAll(); }, 800);
     }
   }).observe(document.body, { childList: true, subtree: true });
 
-  // ── Settings change ──
+  // ── Settings change: reset counter and re-evaluate everything ──
   onSettingsChanged(async () => {
     await new Promise(r => setTimeout(r, 150));
+    filteredCount = 0;
+    sendBadgeUpdate();
     document.querySelectorAll('[data-ff-hidden]').forEach(showEl);
     processAll();
   });
