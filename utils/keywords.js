@@ -41,22 +41,35 @@ const BLOCK_PRESETS = {
     label: 'AI Slop',
     description: 'Mass-produced AI-generated content with no real human behind it',
     title_patterns: [
-      // Classic AI slop formulas
+      // Classic AI slop fear/conspiracy formulas
       'you won\'t believe', 'shocking truth', 'they don\'t want you to know',
       'secret revealed', 'watch before deleted', 'banned video',
       'the truth about', 'what they\'re hiding', 'nobody is talking about',
       'this changes everything', 'will shock you', 'you need to see this',
-      // Faceless channel patterns
+      'what nobody tells you', 'the real reason', 'they lied about',
+      // Faceless listicle / facts channels
       'compilation #', '(full video)', 'in 60 seconds', 'explained in',
       'top 10 facts', 'top 5 facts', 'amazing facts', 'mind blowing facts',
-      'did you know', 'fun facts about',
-      // Lo-fi / ambient AI spam
+      'did you know', 'fun facts about', 'top 10 ', 'top 5 ', 'top 7 ',
+      '5 things', '7 things', '10 things', '5 reasons', '7 reasons', '10 reasons',
+      'you didn\'t know', 'most people don\'t know',
+      // Lo-fi / ambient AI content farms (Reddit calls these out constantly)
       'lofi hip hop', 'study music', 'relaxing music', 'sleep music',
       'calm music', 'meditation music', 'rain sounds', 'white noise',
-      // AI motivation spam
+      'deep sleep', 'baby sleep', 'sleep sounds', 'sleep fast',
+      'focus music', 'concentration music', 'study with me',
+      // AI motivation / voiceover spam
       'motivational speech', 'powerful speech', 'must watch', 'life changing speech',
+      'inspirational speech', 'this will change your life', 'watch this every day',
       // AI news summary spam
       'daily news', 'morning news', 'news update', 'breaking:', 'just happened',
+      'what just happened', 'happening now', 'news today',
+      // AI story/narrative channels
+      'story time', 'true story', 'real story', 'this is the story',
+      'what happened to', 'the story of', 'the rise and fall',
+      // Watch-trap phrases
+      'watch till end', 'watch to end', 'don\'t skip', 'watch full video',
+      'stay till the end', 'important watch',
     ],
     channel_patterns: [],
     flags: {

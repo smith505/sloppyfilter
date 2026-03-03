@@ -6,6 +6,7 @@ class FilterEngine {
     this.settings = settings;
     this.expandedTopics = this._buildExpandedTopics(settings.topics);
     this.customBlockTerms = settings.customBlocks.map(t => t.toLowerCase().trim());
+    this.allowedChannels = (settings.allowedChannels || []).map(c => c.toLowerCase().trim());
   }
 
   // Build expanded topic list from user's topic strings
@@ -25,27 +26,32 @@ class FilterEngine {
 
     const text = this._getItemText(item);
 
-    // 1. Custom user block terms — always win, even over topics
+    // 1. Custom user block terms — always win, even over whitelists
     if (this._matchesCustomBlock(text)) {
       return { show: false, reason: 'custom block term' };
     }
 
-    // 2. Shorts — always blocked if brain_rot is on, topics can't override
+    // 2. Channel whitelist — "I always want to see this creator"
+    //    Overrides all presets. If you said "show Kurzgesagt", they show.
+    if (this._matchesAllowedChannel(item.channel)) {
+      return { show: true, reason: 'allowed channel' };
+    }
+
+    // 3. Shorts — blocked if brain_rot is on (even whitelisted channels' Shorts)
     if (this.settings.blockPresets?.brain_rot && item.isShort) {
       return { show: false, reason: 'shorts blocked' };
     }
 
-    // 3. Topic whitelist — if user has topics and this matches, show it
-    //    Topics override block presets: "I want fitness" saves a fitness video
-    //    from being caught by AI Slop even if the title looks spammy
+    // 4. Topic whitelist — if user has topics and this matches, show it
+    //    Topics override block presets so fitness content isn't caught by AI Slop
     if (this.expandedTopics.length > 0 && matchesTopic(text, this.expandedTopics)) {
       return { show: true, reason: 'topic match' };
     }
 
-    // 4. Block presets — run against everything not saved by topic whitelist
+    // 5. Block presets — run against everything not saved by a whitelist
     for (const [presetKey, enabled] of Object.entries(this.settings.blockPresets)) {
       if (!enabled) continue;
-      if (presetKey === 'brain_rot') continue; // already handled above
+      if (presetKey === 'brain_rot') continue; // handled above
 
       if (matchesBlockPreset(text, presetKey)) {
         return { show: false, reason: `blocked: ${presetKey}` };
@@ -63,7 +69,7 @@ class FilterEngine {
       }
     }
 
-    // 5. Strict mode — hide anything that didn't match topics
+    // 6. Strict mode — hide anything that didn't match topics
     if (this.settings.strictMode && this.expandedTopics.length > 0) {
       return { show: false, reason: 'off-topic (strict mode)' };
     }
@@ -85,11 +91,20 @@ class FilterEngine {
     return this.customBlockTerms.some(term => text.includes(term));
   }
 
+  // Check if channel is in the user's always-show list
+  // Partial match so "Kurzgesagt" matches "Kurzgesagt – In a Nutshell"
+  _matchesAllowedChannel(channel) {
+    if (!channel || this.allowedChannels.length === 0) return false;
+    const ch = channel.toLowerCase().trim();
+    return this.allowedChannels.some(allowed => ch.includes(allowed) || allowed.includes(ch));
+  }
+
   // Update settings without creating a new engine
   updateSettings(newSettings) {
     this.settings = newSettings;
     this.expandedTopics = this._buildExpandedTopics(newSettings.topics);
     this.customBlockTerms = newSettings.customBlocks.map(t => t.toLowerCase().trim());
+    this.allowedChannels = (newSettings.allowedChannels || []).map(c => c.toLowerCase().trim());
   }
 }
 

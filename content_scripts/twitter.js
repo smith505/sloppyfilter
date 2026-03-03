@@ -24,11 +24,19 @@
     };
   }
 
+  // ── Badge counter ──
+  let filteredCount = 0;
+  function sendBadgeUpdate() {
+    chrome.runtime.sendMessage({ type: 'badgeUpdate', count: filteredCount }).catch(() => {});
+  }
+
   // ── Hide/show helpers ──
   function hideEl(el, reason) {
     if (el.dataset.ffHidden) return;
     el.dataset.ffHidden = reason;
     el.style.setProperty('display', 'none', 'important');
+    filteredCount++;
+    sendBadgeUpdate();
   }
 
   function showEl(el) {

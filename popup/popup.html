@@ -13,7 +13,7 @@
       <span class="logo-icon">◎</span>
       <span class="logo-text">SloppyFilter</span>
     </div>
-    <label class="toggle-switch" title="Enable/Disable FocusFeed">
+    <label class="toggle-switch" title="Enable/Disable SloppyFilter">
       <input type="checkbox" id="masterToggle" />
       <span class="slider"></span>
     </label>
@@ -34,9 +34,24 @@
     <div class="mode-row">
       <label class="mode-label" title="Strict: hide everything NOT matching your topics. Off: only hide blocked content.">
         <input type="checkbox" id="strictMode" />
-        <span>Strict mode — hide off-topic content</span>
+        <span>Strict mode — only show topic matches</span>
       </label>
     </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Creators I always want to see</div>
+    <div class="section-hint">These channels show up no matter what — even if they'd normally be filtered</div>
+    <div class="topic-input-row">
+      <input
+        type="text"
+        id="channelInput"
+        placeholder="e.g. Kurzgesagt, AthleanX..."
+        maxlength="60"
+      />
+      <button id="addChannel">Add</button>
+    </div>
+    <div id="channelTags" class="tag-list"></div>
   </div>
 
   <div class="section">

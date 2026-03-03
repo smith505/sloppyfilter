@@ -1,5 +1,4 @@
 // SloppyFilter - Background Service Worker
-// Handles extension lifecycle and future AI scoring layer
 
 // Set default settings on first install
 chrome.runtime.onInstalled.addListener(async (details) => {
@@ -7,6 +6,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     const defaults = {
       enabled: true,
       topics: [],
+      allowedChannels: [],
       customBlocks: [],
       blockPresets: {
         ai_slop: true,
@@ -25,10 +25,29 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   }
 });
 
-// Keep service worker alive for message handling
+// Update the badge count shown on the extension icon
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'badgeUpdate' && sender.tab?.id) {
+    const count = message.count;
+    chrome.action.setBadgeText({
+      text: count > 0 ? String(count) : '',
+      tabId: sender.tab.id,
+    });
+    chrome.action.setBadgeBackgroundColor({
+      color: '#dc2626',
+      tabId: sender.tab.id,
+    });
+  }
+
   if (message.type === 'ping') {
     sendResponse({ status: 'alive' });
   }
   return true;
+});
+
+// Clear badge when tab navigates to a new page
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.status === 'loading') {
+    chrome.action.setBadgeText({ text: '', tabId });
+  }
 });

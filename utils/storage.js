@@ -4,6 +4,7 @@
 const DEFAULT_SETTINGS = {
   enabled: true,
   topics: [],           // What user wants to SEE e.g. ['AI', 'fitness']
+  allowedChannels: [],  // Channels always shown regardless of presets e.g. ['Kurzgesagt', 'Veritasium']
   customBlocks: [],     // Custom words/phrases user wants to block
   blockPresets: {       // Which block presets are enabled
     ai_slop: true,      // Faceless channels, AI voice-overs, content farms
@@ -28,6 +29,8 @@ async function loadSettings() {
       }
       // Ensure all preset keys exist
       result.blockPresets = { ...DEFAULT_SETTINGS.blockPresets, ...result.blockPresets };
+      // Ensure allowedChannels exists (migration for existing installs)
+      if (!result.allowedChannels) result.allowedChannels = [];
       resolve(result);
     });
   });

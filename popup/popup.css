@@ -96,6 +96,12 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #6b7280;
+  margin-bottom: 5px;
+}
+
+.section-hint {
+  font-size: 11px;
+  color: #9ca3af;
   margin-bottom: 9px;
 }
 
@@ -159,6 +165,11 @@ body {
 .tag.topic {
   background: #ede9fe;
   color: #4f46e5;
+}
+
+.tag.channel {
+  background: #dcfce7;
+  color: #16a34a;
 }
 
 .tag.block {

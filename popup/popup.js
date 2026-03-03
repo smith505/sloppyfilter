@@ -1,4 +1,4 @@
-// FocusFeed - Popup Controller
+// SloppyFilter - Popup Controller
 
 const PRESET_ORDER = [
   'ai_slop',
@@ -14,12 +14,12 @@ const PRESET_ORDER = [
 const PRESET_LABELS = {
   ai_slop:         { label: 'AI Slop',           desc: 'Faceless channels, AI voice-overs, content farms' },
   brain_rot:       { label: 'Brain Rot / Shorts', desc: 'YouTube Shorts, mindless viral content' },
-  clickbait:       { label: 'Clickbait',           desc: 'Misleading titles and thumbnails' },
-  rage_bait:       { label: 'Rage Bait',           desc: 'Manufactured outrage designed to make you angry' },
-  politics:        { label: 'Politics & News',     desc: 'Political commentary and partisan content' },
-  sports:          { label: 'Sports',              desc: 'Highlights, scores, sports commentary' },
-  celebrity_drama: { label: 'Celebrity Drama',     desc: 'Gossip, feuds, and entertainment news' },
-  spam_channels:   { label: 'Content Farms',       desc: 'Mass-production low-effort channels' },
+  clickbait:       { label: 'Clickbait',          desc: 'Misleading titles and thumbnails' },
+  rage_bait:       { label: 'Rage Bait',          desc: 'Manufactured outrage designed to make you angry' },
+  politics:        { label: 'Politics & News',    desc: 'Political commentary and partisan content' },
+  sports:          { label: 'Sports',             desc: 'Highlights, scores, sports commentary' },
+  celebrity_drama: { label: 'Celebrity Drama',    desc: 'Gossip, feuds, and entertainment news' },
+  spam_channels:   { label: 'Content Farms',      desc: 'Mass-production low-effort channels' },
 };
 
 let currentSettings = null;
@@ -32,20 +32,12 @@ async function init() {
 }
 
 function renderAll() {
-  // Master toggle
   document.getElementById('masterToggle').checked = currentSettings.enabled;
   document.body.classList.toggle('disabled', !currentSettings.enabled);
-
-  // Strict mode
   document.getElementById('strictMode').checked = currentSettings.strictMode;
-
-  // Topic tags
   renderTags('topicTags', currentSettings.topics, 'topic');
-
-  // Block tags
+  renderTags('channelTags', currentSettings.allowedChannels || [], 'channel');
   renderTags('blockTags', currentSettings.customBlocks, 'block');
-
-  // Preset toggles
   renderPresets();
 }
 
@@ -63,11 +55,9 @@ function renderTags(containerId, items, type) {
 function renderPresets() {
   const container = document.getElementById('presetList');
   container.innerHTML = '';
-
   PRESET_ORDER.forEach(key => {
     const meta = PRESET_LABELS[key];
     const enabled = currentSettings.blockPresets[key] || false;
-
     const item = document.createElement('div');
     item.className = 'preset-item';
     item.innerHTML = `
@@ -86,32 +76,33 @@ function renderPresets() {
 
 // ---- Listeners ----
 function attachListeners() {
-  // Master on/off
   document.getElementById('masterToggle').addEventListener('change', async (e) => {
     currentSettings.enabled = e.target.checked;
     document.body.classList.toggle('disabled', !currentSettings.enabled);
     await save();
   });
 
-  // Strict mode
   document.getElementById('strictMode').addEventListener('change', async (e) => {
     currentSettings.strictMode = e.target.checked;
     await save();
   });
 
-  // Add topic
   document.getElementById('addTopic').addEventListener('click', addTopic);
   document.getElementById('topicInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') addTopic();
   });
 
-  // Add block term
+  document.getElementById('addChannel').addEventListener('click', addChannel);
+  document.getElementById('channelInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') addChannel();
+  });
+
   document.getElementById('addBlock').addEventListener('click', addBlock);
   document.getElementById('blockInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') addBlock();
   });
 
-  // Remove tags (delegated)
+  // Remove tags — delegated to document
   document.addEventListener('click', async (e) => {
     if (!e.target.classList.contains('tag-remove')) return;
     const index = parseInt(e.target.dataset.index);
@@ -120,6 +111,9 @@ function attachListeners() {
     if (type === 'topic') {
       currentSettings.topics.splice(index, 1);
       renderTags('topicTags', currentSettings.topics, 'topic');
+    } else if (type === 'channel') {
+      currentSettings.allowedChannels.splice(index, 1);
+      renderTags('channelTags', currentSettings.allowedChannels, 'channel');
     } else if (type === 'block') {
       currentSettings.customBlocks.splice(index, 1);
       renderTags('blockTags', currentSettings.customBlocks, 'block');
@@ -127,11 +121,9 @@ function attachListeners() {
     await save();
   });
 
-  // Preset toggles (delegated)
   document.getElementById('presetList').addEventListener('change', async (e) => {
     if (!e.target.dataset.preset) return;
-    const key = e.target.dataset.preset;
-    currentSettings.blockPresets[key] = e.target.checked;
+    currentSettings.blockPresets[e.target.dataset.preset] = e.target.checked;
     await save();
   });
 }
@@ -139,13 +131,20 @@ function attachListeners() {
 async function addTopic() {
   const input = document.getElementById('topicInput');
   const value = input.value.trim();
-  if (!value) return;
-  if (currentSettings.topics.includes(value)) {
-    input.value = '';
-    return;
-  }
+  if (!value || currentSettings.topics.includes(value)) { input.value = ''; return; }
   currentSettings.topics.push(value);
   renderTags('topicTags', currentSettings.topics, 'topic');
+  input.value = '';
+  await save();
+}
+
+async function addChannel() {
+  const input = document.getElementById('channelInput');
+  const value = input.value.trim();
+  if (!currentSettings.allowedChannels) currentSettings.allowedChannels = [];
+  if (!value || currentSettings.allowedChannels.includes(value)) { input.value = ''; return; }
+  currentSettings.allowedChannels.push(value);
+  renderTags('channelTags', currentSettings.allowedChannels, 'channel');
   input.value = '';
   await save();
 }
@@ -153,11 +152,7 @@ async function addTopic() {
 async function addBlock() {
   const input = document.getElementById('blockInput');
   const value = input.value.trim();
-  if (!value) return;
-  if (currentSettings.customBlocks.includes(value)) {
-    input.value = '';
-    return;
-  }
+  if (!value || currentSettings.customBlocks.includes(value)) { input.value = ''; return; }
   currentSettings.customBlocks.push(value);
   renderTags('blockTags', currentSettings.customBlocks, 'block');
   input.value = '';
@@ -168,5 +163,4 @@ async function save() {
   await saveSettings(currentSettings);
 }
 
-// ---- Bootstrap ----
 document.addEventListener('DOMContentLoaded', init);
