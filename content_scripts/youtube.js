@@ -33,7 +33,7 @@
         '';
       channel =
         lockup?.querySelector('yt-content-metadata-view-model a[href*="/@"]')?.textContent?.trim() ||
-        lockup?.querySelector('yt-decorated-avatar-view-model a')?.getAttribute('href')?.replace('/', '') ||
+        lockup?.querySelector('yt-decorated-avatar-view-model a')?.getAttribute('href')?.replace(/^\//, '') ||
         '';
     }
 

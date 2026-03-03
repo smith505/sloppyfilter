@@ -47,7 +47,14 @@ function renderTags(containerId, items, type) {
   items.forEach((item, index) => {
     const tag = document.createElement('span');
     tag.className = `tag ${type}`;
-    tag.innerHTML = `${item}<span class="tag-remove" data-index="${index}" data-type="${type}">×</span>`;
+    // Use textContent for user data — never innerHTML with untrusted strings
+    tag.appendChild(document.createTextNode(item));
+    const rm = document.createElement('span');
+    rm.className = 'tag-remove';
+    rm.dataset.index = index;
+    rm.dataset.type = type;
+    rm.textContent = '×';
+    tag.appendChild(rm);
     container.appendChild(tag);
   });
 }
@@ -111,7 +118,7 @@ function attachListeners() {
   // Remove tags — delegated
   document.addEventListener('click', async (e) => {
     if (!e.target.classList.contains('tag-remove')) return;
-    const index = parseInt(e.target.dataset.index);
+    const index = parseInt(e.target.dataset.index, 10);
     const type = e.target.dataset.type;
 
     if (type === 'topic') {
@@ -131,7 +138,7 @@ function attachListeners() {
 async function addTopic() {
   const input = document.getElementById('topicInput');
   const value = input.value.trim();
-  if (!value || currentSettings.topics.includes(value)) { input.value = ''; return; }
+  if (!value || currentSettings.topics.some(t => t.toLowerCase() === value.toLowerCase())) { input.value = ''; return; }
   currentSettings.topics.push(value);
   renderTags('topicTags', currentSettings.topics, 'topic');
   input.value = '';
@@ -142,7 +149,7 @@ async function addChannel() {
   const input = document.getElementById('channelInput');
   const value = input.value.trim();
   if (!currentSettings.allowedChannels) currentSettings.allowedChannels = [];
-  if (!value || currentSettings.allowedChannels.includes(value)) { input.value = ''; return; }
+  if (!value || currentSettings.allowedChannels.some(c => c.toLowerCase() === value.toLowerCase())) { input.value = ''; return; }
   currentSettings.allowedChannels.push(value);
   renderTags('channelTags', currentSettings.allowedChannels, 'channel');
   input.value = '';
@@ -152,7 +159,7 @@ async function addChannel() {
 async function addBlock() {
   const input = document.getElementById('blockInput');
   const value = input.value.trim();
-  if (!value || currentSettings.customBlocks.includes(value)) { input.value = ''; return; }
+  if (!value || currentSettings.customBlocks.some(b => b.toLowerCase() === value.toLowerCase())) { input.value = ''; return; }
   currentSettings.customBlocks.push(value);
   renderTags('blockTags', currentSettings.customBlocks, 'block');
   input.value = '';

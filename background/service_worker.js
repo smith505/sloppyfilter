@@ -34,15 +34,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       tabId: sender.tab.id,
     });
     chrome.action.setBadgeBackgroundColor({
-      color: '#dc2626',
+      color: '#7c3aed',
       tabId: sender.tab.id,
     });
+    return false; // no async response needed
   }
 
   if (message.type === 'ping') {
     sendResponse({ status: 'alive' });
+    return false; // sendResponse called synchronously
   }
-  return true;
 });
 
 // Clear badge when tab navigates to a new page
