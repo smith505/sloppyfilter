@@ -1,4 +1,4 @@
-// FocusFeed - Background Service Worker
+// SloppyFilter - Background Service Worker
 // Handles extension lifecycle and future AI scoring layer
 
 // Set default settings on first install
@@ -21,7 +21,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
       strictMode: false,
     };
     await chrome.storage.sync.set(defaults);
-    console.log('[FocusFeed] Installed with default settings.');
+    console.log('[SloppyFilter] Installed with default settings.');
   }
 });
 

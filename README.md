@@ -1,10 +1,10 @@
-# FocusFeed
+# SloppyFilter
 
 **Block the garbage. Keep what you actually care about.**
 
-FocusFeed is a Chrome extension that surgically filters your YouTube and Twitter/X feeds — removing AI slop, Shorts, clickbait, and political rage bait while keeping the creators and topics you actually want to see.
+SloppyFilter is a Chrome extension that surgically filters your YouTube and Twitter/X feeds — removing AI slop, Shorts, clickbait, and political rage bait while keeping the creators and topics you actually want to see.
 
-Unlike extensions that nuke your entire feed, FocusFeed makes smart decisions based on what the content *is*, not just where it appears.
+Unlike extensions that nuke your entire feed, SloppyFilter makes smart decisions based on what the content *is*, not just where it appears.
 
 ---
 
@@ -45,7 +45,7 @@ Unlike extensions that nuke your entire feed, FocusFeed makes smart decisions ba
 
 ## How it works
 
-FocusFeed runs entirely in your browser. No accounts, no data collection, no servers. Your settings sync across your Chrome devices via Chrome's built-in storage sync.
+SloppyFilter runs entirely in your browser. No accounts, no data collection, no servers. Your settings sync across your Chrome devices via Chrome's built-in storage sync.
 
 **Filter priority order:**
 1. Custom block terms you typed → always hidden

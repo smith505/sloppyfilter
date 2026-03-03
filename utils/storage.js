@@ -1,4 +1,4 @@
-// FocusFeed - Storage utilities
+// SloppyFilter - Storage utilities
 // Handles saving/loading user settings via Chrome's sync storage
 
 const DEFAULT_SETTINGS = {

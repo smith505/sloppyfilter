@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "FocusFeed",
+  "name": "SloppyFilter",
   "version": "0.1.0",
-  "description": "See only what you want. Block everything you don't. AI-powered content filtering for YouTube and Twitter.",
+  "description": "Block AI slop, Shorts, and clickbait from your YouTube and Twitter/X feeds. Keep the content you actually care about.",
   "permissions": [
     "storage",
     "activeTab"
@@ -20,7 +20,7 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "FocusFeed Settings"
+    "default_title": "SloppyFilter Settings"
   },
   "background": {
     "service_worker": "background/service_worker.js"

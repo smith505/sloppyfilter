@@ -1,4 +1,4 @@
-// FocusFeed - Keyword Expansion Engine
+// SloppyFilter - Keyword Expansion Engine
 // Takes a user topic and expands it to related terms for better matching
 
 const TOPIC_EXPANSIONS = {

@@ -1,4 +1,4 @@
-// FocusFeed - Twitter/X Content Script (v2)
+// SloppyFilter - Twitter/X Content Script (v2)
 
 (async function () {
   'use strict';

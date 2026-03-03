@@ -1,4 +1,4 @@
-// FocusFeed - Core Filter Engine
+// SloppyFilter - Core Filter Engine
 // Decides whether a piece of content should be shown or hidden
 
 class FilterEngine {

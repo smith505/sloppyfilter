@@ -1,4 +1,4 @@
-// FocusFeed - YouTube Content Script (v2 - correct selectors)
+// SloppyFilter - YouTube Content Script (v2 - correct selectors)
 
 (async function () {
   'use strict';
