@@ -1,34 +1,39 @@
 // SloppyFilter - Background Service Worker
 
-// Set default settings on first install
+// ── Per-tab filter counts (session memory) ──
+const tabCounts = new Map(); // tabId → filteredCount
+
+// ── Install defaults ──
 chrome.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === 'install') {
-    const defaults = {
+    await chrome.storage.sync.set({
       enabled: true,
       topics: [],
       allowedChannels: [],
       customBlocks: [],
       blockPresets: {
-        ai_slop: true,
-        brain_rot: false,
-        clickbait: false,
-        rage_bait: false,
-        politics: false,
-        sports: false,
-        celebrity_drama: false,
-        spam_channels: true,
+        ai_slop:         true,   // core product
+        spam_channels:   true,   // core product
+        clickbait:       true,   // on by default — this IS the slop
+        rage_bait:       true,   // on by default
+        brain_rot:       false,  // user choice: Shorts
+        politics:        false,  // user choice
+        sports:          false,  // user choice
+        celebrity_drama: false,  // user choice
       },
       strictMode: false,
-    };
-    await chrome.storage.sync.set(defaults);
-    console.log('[SloppyFilter] Installed with default settings.');
+    });
+    console.log('[SloppyFilter] Installed.');
   }
 });
 
-// Update the badge count shown on the extension icon
+// ── Messages from content scripts and popup ──
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+
+  // Content script → update badge + track count
   if (message.type === 'badgeUpdate' && sender.tab?.id) {
-    const count = message.count;
+    const { count } = message;
+    tabCounts.set(sender.tab.id, count);
     chrome.action.setBadgeText({
       text: count > 0 ? String(count) : '',
       tabId: sender.tab.id,
@@ -37,18 +42,31 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       color: '#7c3aed',
       tabId: sender.tab.id,
     });
-    return false; // no async response needed
+    return false;
   }
 
+  // Popup → get total filtered across all open tabs
+  if (message.type === 'getStats') {
+    const total = Array.from(tabCounts.values()).reduce((a, b) => a + b, 0);
+    sendResponse({ total });
+    return false;
+  }
+
+  // Health check
   if (message.type === 'ping') {
     sendResponse({ status: 'alive' });
-    return false; // sendResponse called synchronously
+    return false;
   }
 });
 
-// Clear badge when tab navigates to a new page
+// ── Clean up counts when a tab closes or navigates away ──
+chrome.tabs.onRemoved.addListener((tabId) => {
+  tabCounts.delete(tabId);
+});
+
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   if (changeInfo.status === 'loading') {
+    tabCounts.delete(tabId);
     chrome.action.setBadgeText({ text: '', tabId });
   }
 });

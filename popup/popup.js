@@ -12,42 +12,64 @@ const PRESET_ORDER = [
 ];
 
 const PRESET_LABELS = {
-  ai_slop:         { label: 'AI Slop',       desc: 'Faceless channels, AI voice-overs, content farms' },
-  brain_rot:       { label: 'Shorts',         desc: 'YouTube Shorts and mindless viral content' },
-  clickbait:       { label: 'Clickbait',      desc: 'Misleading titles designed to get clicks' },
-  rage_bait:       { label: 'Rage Bait',      desc: 'Manufactured outrage designed to make you angry' },
-  politics:        { label: 'Politics',       desc: 'Political commentary and partisan content' },
-  sports:          { label: 'Sports',         desc: 'Highlights, scores, sports commentary' },
-  celebrity_drama: { label: 'Celebrity',      desc: 'Gossip, feuds, and entertainment news' },
-  spam_channels:   { label: 'Content Farms',  desc: 'Mass-production low-effort channels' },
+  ai_slop:         { label: 'AI Slop',      desc: 'Faceless channels, AI voice-overs, content farms' },
+  brain_rot:       { label: 'Shorts',        desc: 'YouTube Shorts and mindless viral content' },
+  clickbait:       { label: 'Clickbait',     desc: 'Misleading titles designed to get clicks' },
+  rage_bait:       { label: 'Rage Bait',     desc: 'Manufactured outrage designed to make you angry' },
+  politics:        { label: 'Politics',      desc: 'Political commentary and partisan content' },
+  sports:          { label: 'Sports',        desc: 'Highlights, scores, sports commentary' },
+  celebrity_drama: { label: 'Celebrity',     desc: 'Gossip, feuds, and entertainment news' },
+  spam_channels:   { label: 'Content Farms', desc: 'Mass-production low-effort channels' },
 };
 
 let currentSettings = null;
 
-// ---- Init ----
+// ── Init ──
 async function init() {
   currentSettings = await loadSettings();
   renderAll();
+  await refreshCount();
   attachListeners();
 }
 
 function renderAll() {
-  document.getElementById('masterToggle').checked = currentSettings.enabled;
-  document.body.classList.toggle('disabled', !currentSettings.enabled);
+  const enabled = currentSettings.enabled;
+  document.getElementById('masterToggle').checked = enabled;
+  setHeroState(enabled);
   document.getElementById('strictMode').checked = currentSettings.strictMode;
-  renderTags('topicTags', currentSettings.topics, 'topic');
+  renderTags('topicTags',   currentSettings.topics,               'topic');
   renderTags('channelTags', currentSettings.allowedChannels || [], 'channel');
-  renderTags('blockTags', currentSettings.customBlocks, 'block');
+  renderTags('blockTags',   currentSettings.customBlocks,          'block');
   renderChips();
 }
 
+function setHeroState(enabled) {
+  const hero = document.getElementById('hero');
+  const status = document.getElementById('heroStatus');
+  hero.classList.toggle('paused', !enabled);
+  status.textContent = enabled ? 'Blocking AI slop' : 'Paused';
+}
+
+// ── Stats: ask service worker for total across all tabs ──
+async function refreshCount() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ type: 'getStats' }, (response) => {
+      if (chrome.runtime.lastError) { resolve(); return; }
+      const total = response?.total ?? 0;
+      document.getElementById('blockedCount').textContent =
+        total > 0 ? total.toLocaleString() : '0';
+      resolve();
+    });
+  });
+}
+
+// ── Render ──
 function renderTags(containerId, items, type) {
   const container = document.getElementById(containerId);
   container.innerHTML = '';
   items.forEach((item, index) => {
     const tag = document.createElement('span');
     tag.className = `tag ${type}`;
-    // Use textContent for user data — never innerHTML with untrusted strings
     tag.appendChild(document.createTextNode(item));
     const rm = document.createElement('span');
     rm.className = 'tag-remove';
@@ -64,9 +86,9 @@ function renderChips() {
   container.innerHTML = '';
   PRESET_ORDER.forEach(key => {
     const meta = PRESET_LABELS[key];
-    const enabled = currentSettings.blockPresets[key] || false;
+    const active = currentSettings.blockPresets[key] || false;
     const chip = document.createElement('button');
-    chip.className = `chip${enabled ? ' active' : ''}`;
+    chip.className = `chip${active ? ' active' : ''}`;
     chip.dataset.preset = key;
     chip.title = meta.desc;
     chip.textContent = meta.label;
@@ -74,11 +96,11 @@ function renderChips() {
   });
 }
 
-// ---- Listeners ----
+// ── Listeners ──
 function attachListeners() {
   document.getElementById('masterToggle').addEventListener('change', async (e) => {
     currentSettings.enabled = e.target.checked;
-    document.body.classList.toggle('disabled', !currentSettings.enabled);
+    setHeroState(currentSettings.enabled);
     await save();
   });
 
@@ -87,7 +109,6 @@ function attachListeners() {
     await save();
   });
 
-  // Preset chips — toggle on click
   document.getElementById('presetChips').addEventListener('click', async (e) => {
     const chip = e.target.closest('.chip[data-preset]');
     if (!chip) return;
@@ -97,30 +118,20 @@ function attachListeners() {
     await save();
   });
 
-  // Topic input
   document.getElementById('addTopic').addEventListener('click', addTopic);
-  document.getElementById('topicInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') addTopic();
-  });
+  document.getElementById('topicInput').addEventListener('keydown', e => { if (e.key === 'Enter') addTopic(); });
 
-  // Channel input
   document.getElementById('addChannel').addEventListener('click', addChannel);
-  document.getElementById('channelInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') addChannel();
-  });
+  document.getElementById('channelInput').addEventListener('keydown', e => { if (e.key === 'Enter') addChannel(); });
 
-  // Custom block input
   document.getElementById('addBlock').addEventListener('click', addBlock);
-  document.getElementById('blockInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') addBlock();
-  });
+  document.getElementById('blockInput').addEventListener('keydown', e => { if (e.key === 'Enter') addBlock(); });
 
-  // Remove tags — delegated
+  // Tag removal — delegated
   document.addEventListener('click', async (e) => {
     if (!e.target.classList.contains('tag-remove')) return;
     const index = parseInt(e.target.dataset.index, 10);
     const type = e.target.dataset.type;
-
     if (type === 'topic') {
       currentSettings.topics.splice(index, 1);
       renderTags('topicTags', currentSettings.topics, 'topic');
@@ -133,6 +144,9 @@ function attachListeners() {
     }
     await save();
   });
+
+  // Refresh count whenever popup regains focus
+  window.addEventListener('focus', refreshCount);
 }
 
 async function addTopic() {

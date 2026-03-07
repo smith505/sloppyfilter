@@ -3,20 +3,20 @@
 
 const DEFAULT_SETTINGS = {
   enabled: true,
-  topics: [],           // What user wants to SEE e.g. ['AI', 'fitness']
-  allowedChannels: [],  // Channels always shown regardless of presets e.g. ['Kurzgesagt', 'Veritasium']
-  customBlocks: [],     // Custom words/phrases user wants to block
-  blockPresets: {       // Which block presets are enabled
-    ai_slop: true,      // Faceless channels, AI voice-overs, content farms
-    brain_rot: false,   // YouTube Shorts, mindless viral content
-    clickbait: false,   // Misleading titles and thumbnails
-    rage_bait: false,   // Manufactured outrage content
-    politics: false,    // Political commentary and news drama
-    sports: false,      // Sports highlights and commentary
-    celebrity_drama: false, // Gossip, feuds, entertainment news
-    spam_channels: true,    // Mass-production low-effort channels
+  topics: [],
+  allowedChannels: [],
+  customBlocks: [],
+  blockPresets: {
+    ai_slop:         true,   // core product
+    spam_channels:   true,   // core product
+    clickbait:       true,   // on by default
+    rage_bait:       true,   // on by default
+    brain_rot:       false,  // user choice: Shorts
+    politics:        false,  // user choice
+    sports:          false,  // user choice
+    celebrity_drama: false,  // user choice
   },
-  strictMode: false,    // If true: hide anything NOT matching topics
+  strictMode: false,
 };
 
 async function loadSettings() {

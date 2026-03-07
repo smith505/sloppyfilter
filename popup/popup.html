@@ -13,47 +13,65 @@
       <div class="logo-icon">◎</div>
       <span class="logo-text">SloppyFilter</span>
     </div>
-    <label class="toggle-switch" title="Enable/Disable SloppyFilter">
+  </div>
+
+  <div class="hero" id="hero">
+    <label class="big-toggle" title="Turn SloppyFilter on or off">
       <input type="checkbox" id="masterToggle" />
-      <span class="slider"></span>
+      <span class="big-slider"></span>
     </label>
+    <div class="hero-status" id="heroStatus">Blocking AI slop</div>
+    <div class="hero-count">
+      <span class="count-num" id="blockedCount">—</span>
+      <span class="count-label">filtered this session</span>
+    </div>
   </div>
 
   <div class="section">
-    <div class="section-label">Always hide</div>
+    <div class="section-label">What to block</div>
     <div class="chip-grid" id="presetChips"></div>
   </div>
 
-  <div class="section">
-    <div class="section-label">I want to see</div>
-    <div class="input-row">
-      <input type="text" id="topicInput" placeholder="fitness, AI, coding…" maxlength="40" />
-      <button id="addTopic">Add</button>
-    </div>
-    <div id="topicTags" class="tag-list"></div>
-    <label class="inline-check">
-      <input type="checkbox" id="strictMode" />
-      <span>Strict — only show topic matches</span>
-    </label>
-  </div>
+  <details class="adv-panel">
+    <summary class="adv-summary">
+      <span>Advanced options</span>
+      <span class="adv-chevron">›</span>
+    </summary>
+    <div class="adv-body">
 
-  <div class="section">
-    <div class="section-label">Creators I always want to see</div>
-    <div class="input-row">
-      <input type="text" id="channelInput" placeholder="Kurzgesagt, AthleanX…" maxlength="60" />
-      <button id="addChannel">Add</button>
-    </div>
-    <div id="channelTags" class="tag-list"></div>
-  </div>
+      <div class="adv-section">
+        <div class="section-label">I want to see</div>
+        <div class="input-row">
+          <input type="text" id="topicInput" placeholder="fitness, AI, coding…" maxlength="40" />
+          <button id="addTopic">Add</button>
+        </div>
+        <div id="topicTags" class="tag-list"></div>
+        <label class="inline-check">
+          <input type="checkbox" id="strictMode" />
+          <span>Strict — only show topic matches</span>
+        </label>
+      </div>
 
-  <div class="section">
-    <div class="section-label">Also hide anything with</div>
-    <div class="input-row">
-      <input type="text" id="blockInput" placeholder="Elon Musk, NFT…" maxlength="40" />
-      <button id="addBlock">Add</button>
+      <div class="adv-section">
+        <div class="section-label">Creators I always want to see</div>
+        <div class="input-row">
+          <input type="text" id="channelInput" placeholder="Kurzgesagt, AthleanX…" maxlength="60" />
+          <button id="addChannel">Add</button>
+        </div>
+        <div id="channelTags" class="tag-list"></div>
+      </div>
+
+      <div class="adv-section">
+        <div class="section-label">Also hide anything with</div>
+        <div class="input-row">
+          <input type="text" id="blockInput" placeholder="Elon Musk, NFT…" maxlength="40" />
+          <button id="addBlock">Add</button>
+        </div>
+        <div id="blockTags" class="tag-list"></div>
+      </div>
+
     </div>
-    <div id="blockTags" class="tag-list"></div>
-  </div>
+  </details>
 
   <div class="footer">
     Works on <span class="site-badge">YouTube</span> <span class="site-badge">X / Twitter</span>
