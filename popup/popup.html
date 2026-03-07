@@ -13,13 +13,18 @@
       <div class="logo-icon">◎</div>
       <span class="logo-text">SloppyFilter</span>
     </div>
+    <span class="logo-tag">AI Slop Blocker</span>
   </div>
 
   <div class="hero" id="hero">
-    <label class="big-toggle" title="Turn SloppyFilter on or off">
-      <input type="checkbox" id="masterToggle" />
-      <span class="big-slider"></span>
-    </label>
+    <button class="power-btn" id="masterToggle" aria-pressed="true" title="Turn SloppyFilter on or off">
+      <!-- Power symbol: IEC 5009 — vertical line through partial circle arc -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
+        <line x1="12" y1="2" x2="12" y2="12"/>
+      </svg>
+    </button>
     <div class="hero-status" id="heroStatus">Blocking AI slop</div>
     <div class="hero-count">
       <span class="count-num" id="blockedCount">—</span>
@@ -74,7 +79,7 @@
   </details>
 
   <div class="footer">
-    Works on <span class="site-badge">YouTube</span> <span class="site-badge">X / Twitter</span>
+    Works on <span class="site-badge yt">YouTube</span> <span class="site-badge x">X / Twitter</span>
   </div>
 
   <script src="../utils/storage.js"></script>

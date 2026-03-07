@@ -34,7 +34,7 @@ async function init() {
 
 function renderAll() {
   const enabled = currentSettings.enabled;
-  document.getElementById('masterToggle').checked = enabled;
+  setPowerBtn(enabled);
   setHeroState(enabled);
   document.getElementById('strictMode').checked = currentSettings.strictMode;
   renderTags('topicTags',   currentSettings.topics,               'topic');
@@ -43,11 +43,16 @@ function renderAll() {
   renderChips();
 }
 
+function setPowerBtn(enabled) {
+  const btn = document.getElementById('masterToggle');
+  btn.classList.toggle('off', !enabled);
+  btn.setAttribute('aria-pressed', String(enabled));
+}
+
 function setHeroState(enabled) {
-  const hero = document.getElementById('hero');
-  const status = document.getElementById('heroStatus');
-  hero.classList.toggle('paused', !enabled);
-  status.textContent = enabled ? 'Blocking AI slop' : 'Paused';
+  document.getElementById('hero').classList.toggle('paused', !enabled);
+  document.getElementById('heroStatus').textContent =
+    enabled ? 'Blocking AI slop' : 'Paused';
 }
 
 // ── Stats: ask service worker for total across all tabs ──
@@ -98,8 +103,9 @@ function renderChips() {
 
 // ── Listeners ──
 function attachListeners() {
-  document.getElementById('masterToggle').addEventListener('change', async (e) => {
-    currentSettings.enabled = e.target.checked;
+  document.getElementById('masterToggle').addEventListener('click', async () => {
+    currentSettings.enabled = !currentSettings.enabled;
+    setPowerBtn(currentSettings.enabled);
     setHeroState(currentSettings.enabled);
     await save();
   });
